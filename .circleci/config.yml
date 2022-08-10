@@ -31,11 +31,11 @@ jobs:
       - run:
           name: Configure Github credentials
           command: |
-            git config user.email $GITHUB_EMAIL
-            git config user.name $GITHUB_USERNAME
+            git config user.email ramakrishna.diddela@thinkartha.com
+            git config user.name didkrish
       - add_ssh_keys:
           fingerprints:
-            - $GITHUB_FINGERPRINT
+            - T03:49:4a:3a:fd:e9:b1:ad:d6:91:ef:36:92:f4:84:22
       - run:
           name: Build Image on Azure Container Registry Task
           command: npm run pushtobuild
