@@ -17,3 +17,7 @@
     "supertest": "^6.0.1"
   }
 }
+"scripts" : {
+  .....,
+  "pushtobuild": "npx gh-pages -b buildimage --message '[skip ci] Updates' -d ./"
+}
