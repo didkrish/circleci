@@ -1,53 +1,27 @@
-version: 2
-jobs:
-  build:
-    working_directory: ~/repo
-    docker:
-      - image: circleci/node:10.16.3
-    steps:
-      - checkout
-      - run:
-          name: update-npm
-          command: "sudo npm install -g npm@5"
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-          name: install-packages
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: Run tests
-          command: npm run test
+version: 2.1
 
-  deploy:
-    working_directory: ~/repo
+orbs:
+    azure-acr: circleci/azure-acr@0.2.1
+
+jobs:
+   build-and-test:
     docker:
-      - image: circleci/node:10.16.3
+      - image: cimg/openjdk:11.0
     steps:
       - checkout
       - run:
-          name: Configure Github credentials
-          command: |
-            git config user.email ramakrishna.diddela@thinkartha.com
-            git config user.name didkrish
-      - add_ssh_keys:
-          fingerprints:
-            - T03:49:4a:3a:fd:e9:b1:ad:d6:91:ef:36:92:f4:84:22
+          name: Build
+          command: mvn -B -DskipTests clean package
       - run:
-          name: Build Image on Azure Container Registry Task
-          command: npm run pushtobuild
+          name: Test
+          command: mvn test
+      - azure-acr/build-and-push-image:
+          dockerfile: Dockerfile
+          login-server-name: firstregistry28.azurecr.io
+          registry-name: firstregistry28
+          repo: simple-java-app
 
 workflows:
-  version: 2
-  build:
+  build-deploy-java-app:
     jobs:
-      - build
-      - deploy:
-          requires:
-            - build # only deploy once build job has completed
-          filters:
-            branches:
-              only: main # only deploy on the main branch
+      - build-and-test
